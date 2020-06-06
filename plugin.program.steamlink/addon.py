@@ -31,21 +31,6 @@ kodi-send --action="Notification(Installing Steamlink, Please wait while install
 mkdir -p /storage/steamlink
 mkdir -p /storage/steamlink/overlay_work
 mkdir -p /storage/steamlink/lib
-mkdir -p /storage/raspbian
-mkdir -p /storage/raspbian/image
-
-## NOTE: Some raspbian/raspios images can not get extracted on LibreELEC (>2GB, "need PK compat.", etc.)
-##       We use 7za to circumvent this
-## TODO: Using a non-busybox "unzip" is probably the better alternative
-wget https://github.com/develar/7zip-bin/raw/master/linux/arm/7za -O /storage/7za
-chmod +x /storage/7za
-
-
-# Download and extract Raspberry Pi OS
-# TODO: overkill for just the libs (you currently need at least a 16GB microSD card)
-cd /storage/raspbian/
-wget http://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-2020-05-28/2020-05-27-raspios-buster-full-armhf.zip
-/storage/7za x 2020-05-27-raspios-buster-full-armhf.zip
 
 # Download and extract Steam SteamLink
 cd /storage/
@@ -54,16 +39,20 @@ tar -zxf steamlink.tar.gz
 cp /storage/steamlink/udev/rules.d/55-steamlink.rules /storage/.config/udev.rules.d/55-steamlink.rules
 rm /storage/steamlink.tar.gz
 
-# Mount Raspberry Pi OS image and extract necessary libs for Steam Link
-# TODO: overkill
-cd /storage/
-# FIXME: mount does not work under busybox -- mount: mounting /dev/loop1 on /storage/raspbian/image/ failed: Invalid argument
-mount -o loop,ro,offset=272629760 -t ext4 /storage/raspbian/2020-05-27-raspios-buster-full-armhf.img /storage/raspbian/image/
-cd /storage/raspbian/image/
-for i in libpng*.so.* libicui18n.so.* libicuuc.so.* libicudata.so.* libX11-xcb.so.* libX11.so.* libXext.so.* libxcb.so.* libxkbcommon-x11.so.* libXau.so.* libXdmcp.so.* libxcb-xkb.so.* libbsd.so.*; do cp $(find ./usr/lib/arm-linux-gnueabihf/ -type f -name $i) /storage/steamlink/lib/ ; done
-cd ../..
-umount /storage/raspbian/image
-rm -r /storage/rasbian/
+# Get required libraries
+wget -O /storage/steamlink/lib/libbsd.so.0.9.1           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libbsd.so.0.9.1
+wget -O /storage/steamlink/lib/libicudata.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicudata.so.63.1
+wget -O /storage/steamlink/lib/libicui18n.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicui18n.so.63.1
+wget -O /storage/steamlink/lib/libicuuc.so.63.1          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicuuc.so.63.1
+wget -O /storage/steamlink/lib/libpng16.so.16.36.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libpng16.so.16.36.0
+wget -O /storage/steamlink/lib/libX11.so.6.3.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11.so.6.3.0
+wget -O /storage/steamlink/lib/libX11-xcb.so.1.0.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11-xcb.so.1.0.0
+wget -O /storage/steamlink/lib/libXau.so.6.0.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXau.so.6.0.0
+wget -O /storage/steamlink/lib/libxcb.so.1.1.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxcb.so.1.1.0
+wget -O /storage/steamlink/lib/libxcb-xkb.so.1.0.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxcb-xkb.so.1.0.0
+wget -O /storage/steamlink/lib/libXdmcp.so.6.0.0         https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXdmcp.so.6.0.0
+wget -O /storage/steamlink/lib/libXext.so.6.4.0          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXext.so.6.4.0
+wget -O /storage/steamlink/lib/libxkbcommon-x11.so.0.0.0 https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxkbcommon-x11.so.0.0.0
 
 # Download and enable swetoast's udev rules
 cd /storage/
