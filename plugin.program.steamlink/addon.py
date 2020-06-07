@@ -129,7 +129,7 @@ systemctl start kodi
 }
 
 os_detection () {
-case $(cat /etc/os-release | grep -oE "^NAME=\".*") in
+case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
  *LibreELEC*) watchdog_libre ;;
       *OSMC*) watchdog_osmc ;;
 esac
