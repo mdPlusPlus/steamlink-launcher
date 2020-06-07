@@ -122,6 +122,14 @@ sudo openvt -c 7 -s -f clear
 sudo systemctl start mediacenter
 }
 
+# FIXME: # /storage/steamlink/steamlink.sh
+#          * failed to add service - already in use?
+#
+# Official response to that: https://steamcommunity.com/app/353380/discussions/6/1642041886371250832/?ctp=4#c3428846977637944531
+# This is because on Buster the graphics hardware is in use for system display
+# and Qt can't create an EGL context on the console. You'll need to run a
+# minimal X11 setup in order to use Steam Link on the Raspberry Pi 4.
+#
 watchdog_libre () {
 systemctl stop kodi
 if [ "$HYPERIONFIX" = 1 ]; then
