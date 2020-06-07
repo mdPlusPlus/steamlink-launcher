@@ -44,6 +44,7 @@ wget -O /storage/steamlink/lib/libbsd.so.0.9.1           https://github.com/mdPl
 wget -O /storage/steamlink/lib/libicudata.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicudata.so.63.1
 wget -O /storage/steamlink/lib/libicui18n.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicui18n.so.63.1
 wget -O /storage/steamlink/lib/libicuuc.so.63.1          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicuuc.so.63.1
+wget -O /storage/steamlink/lib/libjpeg.so.62.2.0         https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libjpeg.so.62.2.0
 wget -O /storage/steamlink/lib/libpng16.so.16.36.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libpng16.so.16.36.0
 wget -O /storage/steamlink/lib/libX11.so.6.3.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11.so.6.3.0
 wget -O /storage/steamlink/lib/libX11-xcb.so.1.0.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11-xcb.so.1.0.0
@@ -53,6 +54,10 @@ wget -O /storage/steamlink/lib/libxcb-xkb.so.1.0.0       https://github.com/mdPl
 wget -O /storage/steamlink/lib/libXdmcp.so.6.0.0         https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXdmcp.so.6.0.0
 wget -O /storage/steamlink/lib/libXext.so.6.4.0          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXext.so.6.4.0
 wget -O /storage/steamlink/lib/libxkbcommon-x11.so.0.0.0 https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxkbcommon-x11.so.0.0.0
+
+cd /storage/steamlink/lib
+ln -s libjpeg.so.62.2.0   libjpeg.so.62
+ln -s libpng16.so.16.36.0 libpng16.so.16
 
 # Download and enable swetoast's udev rules
 cd /storage/
@@ -82,7 +87,7 @@ case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
 esac
 }
 
-
+# TODO: Why "su -c" for LibreELEC? User is already root
 start_steamlink () {
 chmod 755 /tmp/steamlink-watchdog.sh
 case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
