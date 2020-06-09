@@ -1,12 +1,14 @@
 #!/bin/sh
 
-NOTIFICATION="kodi-send --action=\"Notification(Installing Steam Link, Please wait while installing Steam Link and packages... This might take awhile,1500)\""
+notification () {
+    "kodi-send --action=\"Notification(Installing Steam Link, Please wait while installing Steam Link and packages... This might take awhile,1500)\""
+}
 
 # Installation (LibreELEC)
 install_on_libre () {
 
     # Send notification
-    $(NOTIFICATION)
+    notification
 
     
     # Create required directories
@@ -59,7 +61,7 @@ install_on_libre () {
 install_on_osmc () {
 
     # Send notification
-    $(NOTIFICATION)
+    notification
     
     # Install dependencies
     sudo apt-get install curl gnupg libc6 xz-utils -y
@@ -81,15 +83,15 @@ install_on_osmc () {
 start_steamlink () {
     # TODO: Correct path for steamlink-watchdog.sh
     chmod 755 /tmp/steamlink-watchdog.sh
-    case $(cat /etc/os-release | grep -oE "^NAME=\".*") in
-     *LibreELEC*) systemctl start steamlink
+    case $(grep -oE "^NAME=\".*" /etc/os-release) in
+     *LibreELEC*) systemctl start steamlink ;;
           *OSMC*) sudo su -c "nohup sudo openvt -c 7 -s -f -l /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &" ;;
     esac
 }
 
 # Detect existing installation
 detect_steamlink () {
-    case $(cat /etc/os-release | grep -oE "^NAME=\".*") in
+    case $(grep -oE "^NAME=\".*" /etc/os-release) in
      *LibreELEC*) if [ -f "/storage/steamlink/steamlink.sh" ]; then start_steamlink ; else install_on_libre; fi ;;
           *OSMC*) if [ "$(which steamlink)" -eq "1" ]; then start_steamlink ; else install_on_osmc; fi ;;
     esac

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ?
-hyperion_fix () {
+lshyperion_fix () {
     if [ "$HYPERIONFIX" = 1 ]; then
         if [ "$(pgrep hyperion)" ]; then sudo systemctl stop hyperion; fi
         if [ ! "$(pgrep hyperion)" ]; then sudo systemctl start hyperion; fi
@@ -58,7 +58,7 @@ watchdog_libre () {
 }
 
 os_detection () {
-    case $(cat /etc/os-release | grep -oE "^NAME=\".*") in
+    case $(grep -oE "^NAME=\".*" /etc/os-release) in
      *LibreELEC*) watchdog_libre ;;
           *OSMC*) watchdog_osmc ;;
     esac
