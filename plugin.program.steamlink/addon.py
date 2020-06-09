@@ -130,13 +130,17 @@ sudo systemctl start mediacenter
 # and Qt can't create an EGL context on the console. You'll need to run a
 # minimal X11 setup in order to use Steam Link on the Raspberry Pi 4.
 #
+# FIXME: "systemctl kodi stop" kills everything run from kodi
+#        steamlink.sh does not get started
+#        How to circumvent this?
+#        Write systemd service that stops kodi and starts steamlink.sh?
+#
 watchdog_libre () {
 systemctl stop kodi
 if [ "$HYPERIONFIX" = 1 ]; then
    if [ "$(pgrep hyperion)" ]; then systemctl stop hyperion; fi
    if [ ! "$(pgrep hyperion)" ]; then systemctl start hyperion; fi
 fi
-systemctl stop kodi
 /storage/steamlink/steamlink.sh &> /storage/steamlink/steamlink.log >/dev/null 2>&1 &
 systemctl start kodi
 }
