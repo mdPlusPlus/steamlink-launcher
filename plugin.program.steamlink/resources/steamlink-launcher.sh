@@ -1,7 +1,7 @@
 #!/bin/sh
 
 notification () {
-    kodi-send --action=\"Notification(Installing Steam Link, Please wait while installing Steam Link and packages... This might take awhile,1500)\"
+    kodi-send --action="Notification(Installing Steam Link, Please wait while installing Steam Link and packages... This might take awhile,1500)"
 }
 
 # Installation (LibreELEC)
