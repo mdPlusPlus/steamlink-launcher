@@ -1,0 +1,10 @@
+[Unit]
+Description="Watchdog to start Steam Link"
+After=graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=/storage/.kodi/addons/plugin.program.steamlink/resources/steamlink-watchdog.sh
+
+[Install]
+WantedBy=graphical.target
