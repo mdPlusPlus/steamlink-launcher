@@ -98,7 +98,7 @@ esac
 
 detect_steamlink () {
 case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
- *LibreELEC*) if [ -f "/storage/steamlink/steamlink" ]; then start_steamlink ; else install_on_os; fi ;;
+ *LibreELEC*) if [ -f "/storage/steamlink/steamlink.sh" ]; then start_steamlink ; else install_on_os; fi ;;
       *OSMC*) if [ "$(which steamlink)" -eq "1" ]; then start_steamlink ; else install_on_os; fi ;;
 esac
 
