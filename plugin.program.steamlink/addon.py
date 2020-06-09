@@ -36,7 +36,7 @@ mkdir -p /storage/steamlink/lib
 cd /storage/
 wget "$(wget -q -O - http://media.steampowered.com/steamlink/rpi/public_build.txt)" -O /storage/steamlink.tar.gz
 tar -zxf steamlink.tar.gz
-cp /storage/steamlink/udev/rules.d/55-steamlink.rules /storage/.config/udev.rules.d/55-steamlink.rules
+cp /storage/steamlink/udev/rules.d/*-steamlink.rules /storage/.config/udev.rules.d/
 rm /storage/steamlink.tar.gz
 
 # Get required libraries
