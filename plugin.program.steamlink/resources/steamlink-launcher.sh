@@ -10,25 +10,25 @@ install_on_libre () {
     # Send notification
     notification
 
-    
+
     # Create required directories
     mkdir -p \
         /storage/steamlink/lib \
         /storage/steamlink/overlay_work
-    
-    
+
+
     # Download and extract Steam SteamLink
     wget "$(wget -q -O - http://media.steampowered.com/steamlink/rpi/public_build.txt)" \
         -O /storage/steamlink.tar.gz
     tar -zxf steamlink.tar.gz
     cp /storage/steamlink/udev/rules.d/*-steamlink.rules /storage/.config/udev.rules.d/
     rm /storage/steamlink.tar.gz
-    
-    
+
+
     # Get required libraries
     LIB_SOURCE="https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/"
     LIB_TARGET="/storage/steamlink/lib/"
-    
+
     wget -O "${LIB_TARGET}libbsd.so.0.9.1"           "${LIB_SOURCE}libbsd.so.0.9.1"
     wget -O "${LIB_TARGET}libjpeg.so.62.2.0"         "${LIB_SOURCE}libjpeg.so.62.2.0"
     wget -O "${LIB_TARGET}libpng16.so.16.36.0"       "${LIB_SOURCE}libpng16.so.16.36.0"
@@ -62,19 +62,19 @@ install_on_osmc () {
 
     # Send notification
     notification
-    
+
     # Install dependencies
     sudo apt-get install curl gnupg libc6 xz-utils -y
-    
+
     # Install Steam Link
     wget http://media.steampowered.com/steamlink/rpi/steamlink.deb -O /tmp/steamlink.deb
     sudo dpkg -i /tmp/steamlink.deb
     rm -f /tmp/steamlink.deb
     sudo mv /home/osmc/.local/share/SteamLink/udev/rules.d/*-steamlink.rules /lib/udev/rules.d/
-    
+
     # TODO: Why this line?
     sudo -u osmc steamlink
-    
+
     # Actually start Steam Link
     start_steamlink
 }

@@ -1,17 +1,24 @@
 #!/bin/bash
 
 # ?
-lshyperion_fix () {
+hyperion_fix_osmc () {
     if [ "$HYPERIONFIX" = 1 ]; then
         if [ "$(pgrep hyperion)" ]; then sudo systemctl stop hyperion; fi
         if [ ! "$(pgrep hyperion)" ]; then sudo systemctl start hyperion; fi
     fi
 }
+hyperion_fix_libre () {
+    if [ "$HYPERIONFIX" = 1 ]; then
+        if [ "$(pgrep hyperion)" ]; then systemctl stop hyperion; fi
+        if [ ! "$(pgrep hyperion)" ]; then systemctl start hyperion; fi
+    fi
+}
+
 
 # Watchdog on OSMC
 watchdog_osmc () {
     sudo systemctl stop mediacenter
-    hyperion_fix
+    hyperion_fix_osmc
     sudo -u osmc steamlink
     sudo openvt -c 7 -s -f clear
     sudo systemctl start mediacenter
@@ -48,7 +55,7 @@ unmount_overlay () {
 watchdog_libre () {
     systemctl stop kodi
     #systemctl stop pluseaudio
-    hyperion_fix
+    hyperion_fix_libre
     mount_overlay
     #/storage/steamlink/steamlink.sh &> /storage/steamlink/steamlink.log >/dev/null 2>&1 &
     /storage/steamlink/steamlink.sh >/storage/steamlink/steamlink.log >/dev/null 2>&1
