@@ -1,0 +1,11 @@
+[Unit]
+Description="Watchdog to start Steamlink"
+After=graphical.target
+ConditionPathExists=/tmp/steamlink.watchdog
+
+[Service]
+Type=oneshot
+ExecStart=/storage/.kodi/addons/script.steamlink-rpi/bin/steamlink-start.sh
+
+[Install]
+WantedBy=graphical.target

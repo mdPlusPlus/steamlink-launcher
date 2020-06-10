@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.steamlink-rpi"
+       name="steamlink-rpi"
+       version="9.80.2.100"
+       provider-name="Team LibreELEC">
+  <requires>
+    <import addon="os.libreelec.tv" version="9.80"/>
+    <import addon="xbmc.python" version="3.0.0"/>
+
+  </requires>
+  <extension point="xbmc.python.script" library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Steam Link App for Raspberry Pi</summary>
+    <description>
+Installs the Steam Link App for Raspberry Pi 3 or newer from Valve for use in streaming from Steam clients. Addon is not associated with Valve. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries.
+    </description>
+    <disclaimer>
+
+    </disclaimer>
+    <platform>all</platform>
+    <news>
+100
+- Initial Release
+    </news>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.png</fanart>
+
+    </assets>
+  </extension>
+</addon>
