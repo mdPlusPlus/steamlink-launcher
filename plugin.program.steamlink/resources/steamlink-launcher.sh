@@ -20,7 +20,7 @@ install_on_libre () {
     # Download and extract Steam SteamLink
     wget "$(wget -q -O - http://media.steampowered.com/steamlink/rpi/public_build.txt)" \
         -O /storage/steamlink.tar.gz
-    tar -zxf steamlink.tar.gz
+    cd /storage && tar -zxf steamlink.tar.gz
     cp /storage/steamlink/udev/rules.d/*-steamlink.rules /storage/.config/udev.rules.d/
     rm /storage/steamlink.tar.gz
 
@@ -44,9 +44,11 @@ install_on_libre () {
     ln -snf "${LIB_TARGET}libjpeg.so.62.2.0"   "${LIB_TARGET}libjpeg.so.62"
     ln -snf "${LIB_TARGET}libpng16.so.16.36.0" "${LIB_TARGET}libpng16.so.16"
 
+    # Make system-watchdog.sh executable
+    chmod +x /storage/.kodi/addons/plugin.program.steamlink/resources/steamlink-watchdog.sh
 
     # TODO: Are the paths correct?
-    # TODO: enable necessary?
+    # -TODO: enable necessary? = YES
     # Install Steam Link Systemd service
     SYSTEMD_TARGET="/storage/.config/system.d/"
     ln -snf /storage/.kodi/addons/plugin.program.steamlink/resources/steamlink.service "${SYSTEMD_TARGET}"

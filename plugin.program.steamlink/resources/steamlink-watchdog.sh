@@ -27,13 +27,14 @@ watchdog_osmc () {
 # Enable udev rules
 mount_overlay () {
     mount -t overlay overlay \
-        -o lowerdir=/lib/udev/rules.d,upperdir=/storage/steamlink/udev/rules.d/,workdir=/storage/steamlink/overlay_work
+        -o lowerdir=/lib/udev/rules.d,upperdir=/storage/steamlink/udev/rules.d/,workdir=/storage/steamlink/overlay_work \
+        /storage/steamlink/udev/rules.d/
     udevadm trigger
 }
 
 # Disable udev rules
 unmount_overlay () {
-    umount /lib/udev/rules.d/
+    umount /storage/steamlink/udev/rules.d/
     udevadm trigger
 }
 
@@ -58,7 +59,7 @@ watchdog_libre () {
     hyperion_fix_libre
     mount_overlay
     #/storage/steamlink/steamlink.sh &> /storage/steamlink/steamlink.log >/dev/null 2>&1 &
-    /storage/steamlink/steamlink.sh >/storage/steamlink/steamlink.log >/dev/null 2>&1
+    /storage/steamlink/steamlink.sh >/storage/steamlink/steamlink.log 2>&1 </dev/null
     unmount_overlay
     #systemctl start pulseaudio
     systemctl start kodi
