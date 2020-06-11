@@ -78,11 +78,11 @@ def StartSteamlink():
     InstallLibreELEC()
   elif OS_STRING == "OSMC":
     InstallOSMC()
-  else
+  else:
     xbmcg.Dialog.notification("Steam Link", "Unssupported operaiong system. Aborting...",
     xbmcgui.NOTIFICATION_INFO, 5000)
     exit(1)
-  }
+
 
 # Main
 StartSteamlink()
