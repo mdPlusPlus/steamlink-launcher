@@ -44,13 +44,7 @@ def DownloadSteamlinkLibre(temp_dir):
     xbmcgui.Dialog().notification("Steam Link", "Download error: bad download or missing file", xbmcgui.NOTIFICATION_INFO, 5000)
     exit(1)
 
-def DownloadSteamlinkOSMC():
-  """ Download Steam Link for RPi (OSMC) """
-  OSMC_INSTALL_SCRIPT = ADDON_DIR + 'bin/osmc_install.sh'
-  os.system("sh " + OSMC_INSTALL_SCRIPT)
-
-# TODO: Differentiate between LibreELEC (.tar.gz) and OSMC (.deb)
-def StartSteamlink():
+def InstallLibreELEC():
   # Check if running on RPi3 or higher
   if not os.path.isfile(ADDON_DIR + "steamlink/.ignore_cpuinfo") and GetRPiProcessor() < 2:
     xbmcgui.Dialog.notification("Steam Link", "Steam Link will not run on this hardware. Aborting...", xbmcgui.NOTIFICATION_INFO, 5000)
@@ -70,5 +64,25 @@ def StartSteamlink():
   Path("/tmp/steamlink.watchdog").touch()
   subprocess.run(["systemctl", "start", "steamlink-rpi.watchdog.service"])
 
+def InstallOSMC():
+  OSMC_INSTALL_SCRIPT = ADDON_DIR + 'bin/osmc_install.sh'
+  os.system("sh " + OSMC_INSTALL_SCRIPT)
 
+def StartSteamlink():
+  OS_STRING = os.popen('grep -oE "^NAME=\\".*" /etc/os-release').read() # 'NAME="LibreELEC"\n'
+  OS_STRING = OS_STRING.split("\"\n",1)[0] # -> 'NAME="LibreELEC'
+  OS_STRING = OS_STRING.split("NAME=\"",1)[1] # -> 'LibreELEC'
+
+  """ Check OS and check installation accordingly """
+  if OS_STRING == "LibreELEC":
+    InstallLibreELEC()
+  elif OS_STRING == "OSMC":
+    InstallOSMC()
+  else
+    xbmcg.Dialog.notification("Steam Link", "Unssupported operaiong system. Aborting...",
+    xbmcgui.NOTIFICATION_INFO, 5000)
+    exit(1)
+  }
+
+# Main
 StartSteamlink()
