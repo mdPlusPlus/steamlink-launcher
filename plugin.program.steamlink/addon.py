@@ -1,159 +1,143 @@
-"""Steamlink Launcher for OSMC"""
+#!/usr/bin/python3
+
 import os
-import xbmc
-import xbmcgui
-import xbmcaddon
+import platform
+import requests
+import shutil
+import stat
+import subprocess
+import tarfile
+import tempfile
+##import xmbcaddon
+from urllib.request import urlretrieve
 
-__plugin__ = "Steamlink"
-__author__ = "Toast"
-__url__ = "https://github.com/swetoast/steamlink-launcher/"
-__git_url__ = "https://github.com/swetoast/steamlink-launcher/"
-__credits__ = "Ludeeus, Slouken, sgroen88, ToiletSalad, mdPlusPlus"
-__version__ = "0.0.7"
+##addon_dir = xbmcaddon.Addon().getAddonInfo("path")
+addon_dir = "/home/user/Downloads/ADDON"
+version_file = os.path.join(os.path.join(addon_dir, "steamlink"), "version.txt")
 
-dialog = xbmcgui.Dialog()
-addon = xbmcaddon.Addon(id='plugin.program.steamlink')
+# Detect operatiing system
+def GetOS():
+	with open("/etc/os-release") as os_release:
+		for line in os_release:
+			if line.startswith("NAME="):
+				value = line.split("=",)[1]
+				os_string = value.split("\"")[1]
+				return os_string
 
-def main():
-    """Main operations of this plugin."""
-    create_files()
-    output = os.popen("sh /tmp/steamlink-launcher.sh").read()
-    dialog.ok("Starting Steamlink...", output)
+	# If "NAME=" wasn't found in /etc/os-release, return "unknown"
+	return "unknown"
 
-def create_files():
-    """Creates bash files to be used for this plugin."""
-    with open('/tmp/steamlink-launcher.sh', 'w') as outfile:
-        outfile.write("""#!/bin/sh
-# installation part
-install_on_libre () {
-kodi-send --action="Notification(Installing Steamlink, Please wait while installing Steamlink and packages.. this might take awhile,1500)"
+# Installation on LibreELEC
+def LibreELECInstall():
+	# Remove installaton directory if already present
+	shutil.rmtree(os.path.join(addon_dir, "steamlink"), ignore_errors=True)
 
-mkdir -p /storage/steamlink
-mkdir -p /storage/steamlink/overlay_work
-mkdir -p /storage/steamlink/lib
+	# Copy required libraries
+	lib_source = os.path.join(os.path.join(addon_dir, "resources"), "lib") # ADDON/resources/lib
+	lib_target = os.path.join(os.path.join(addon_dir, "steamlink"), "lib") # ADDON/steamlink/lib
+	print("Symlinking required libraries from " + lib_source + " to " + lib_target + ".")
+	os.makedirs(lib_target)
+	# libjpeg.so.62.2.0 > libjpeg.so.62
+	os.symlink(os.path.join(lib_source, "libjpeg.so.62.2.0"),   os.path.join(lib_target, "libjpeg.so.62"))
+	# libpng16.so.16.36.0 -> libpng16.so.16
+	os.symlink(os.path.join(lib_source, "libpng16.so.16.36.0"), os.path.join(lib_target, "libpng16.so.16"))
+	# libX11-xcb.so.1.0.0
+	os.symlink(os.path.join(lib_source, "libX11-xcb.so.1.0.0"), os.path.join(lib_target, "libX11-xcb.so.1.0.0"))
+	# libX11.so.6.3.0
+	os.symlink(os.path.join(lib_source, "libX11.so.6.3.0"),     os.path.join(lib_target, "libX11.so.6.3.0"))
+	# libXext.so.6.4.0
+	os.symlink(os.path.join(lib_source, "libXext.so.6.4.0"),    os.path.join(lib_target, "libXext.so.6.4.0"))
 
-# Download and extract Steam SteamLink
-cd /storage/
-wget "$(wget -q -O - http://media.steampowered.com/steamlink/rpi/public_build.txt)" -O /storage/steamlink.tar.gz
-tar -zxf steamlink.tar.gz
-cp /storage/steamlink/udev/rules.d/*-steamlink.rules /storage/.config/udev.rules.d/
-rm /storage/steamlink.tar.gz
+	# Make start script executable
+	start_sh_name = "start.sh"
+	start_sh = os.path.join(os.path.join(addon_dir, "resources"), start_sh_name)
+	mode = os.stat(start_sh).st_mode
+	os.chmod(start_sh, mode | stat.S_IEXEC)
+	
+	# Get download link and download path
+	link = "http://media.steampowered.com/steamlink/rpi/public_build.txt"
+	download_link = requests.get(link).text.split("\n")[0]
+	steamlink_version = download_link.split("http://media.steampowered.com/steamlink/rpi/steamlink-rpi3-",1)[1].split(".tar.gz")[0]
+	tarball_name = "steamlink-rpi3-" + steamlink_version + ".tar.gz"
+	tarball_path = os.path.join(tempfile.mkdtemp(), tarball_name)
 
-# Get required libraries
-wget -O /storage/steamlink/lib/libbsd.so.0.9.1           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libbsd.so.0.9.1
-wget -O /storage/steamlink/lib/libicudata.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicudata.so.63.1
-wget -O /storage/steamlink/lib/libicui18n.so.63.1        https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicui18n.so.63.1
-wget -O /storage/steamlink/lib/libicuuc.so.63.1          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libicuuc.so.63.1
-wget -O /storage/steamlink/lib/libjpeg.so.62.2.0         https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libjpeg.so.62.2.0
-wget -O /storage/steamlink/lib/libpng16.so.16.36.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libpng16.so.16.36.0
-wget -O /storage/steamlink/lib/libX11.so.6.3.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11.so.6.3.0
-wget -O /storage/steamlink/lib/libX11-xcb.so.1.0.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libX11-xcb.so.1.0.0
-wget -O /storage/steamlink/lib/libXau.so.6.0.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXau.so.6.0.0
-wget -O /storage/steamlink/lib/libxcb.so.1.1.0           https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxcb.so.1.1.0
-wget -O /storage/steamlink/lib/libxcb-xkb.so.1.0.0       https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxcb-xkb.so.1.0.0
-wget -O /storage/steamlink/lib/libXdmcp.so.6.0.0         https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXdmcp.so.6.0.0
-wget -O /storage/steamlink/lib/libXext.so.6.4.0          https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libXext.so.6.4.0
-wget -O /storage/steamlink/lib/libxkbcommon-x11.so.0.0.0 https://github.com/mdPlusPlus/steamlink-launcher/raw/dev/libreelec_additonal/lib/libxkbcommon-x11.so.0.0.0
+	# Download .tar.gz to temporary directory
+	print("Downloading Steam Link.")
+	urlretrieve(download_link, tarball_path)
 
-cd /storage/steamlink/lib
-ln -s libjpeg.so.62.2.0   libjpeg.so.62
-ln -s libpng16.so.16.36.0 libpng16.so.16
+	# Extract .tar.gz
+	print("Extracting Steam Link archive.")
+	tarfile.open(tarball_path).extractall(path=addon_dir)
 
-# Download and enable swetoast's udev rules
-cd /storage/
-wget https://raw.githubusercontent.com/swetoast/steamlink-launcher/dev/libreelec_additonal/60-steam-input.rules -O /storage/.config/system.d/storage-steamlink-udev-rules.d.mount
-systemctl enable storage-steamlink-udev-rules.d.mount
-udevadm trigger
+	# Symlinking systemd service file
+	service_file_name = "steamlink.service"
+	service_file_source = os.path.join(os.path.join(addon_dir, "resources"), service_file_name) # ADDON/resources/steamlink.sh
+	# /usr/lib/systemd/system/ ?
+	##service_file_target = "/storage/.config/system.d/" + service_file_name # TODO: Get systemd path from OS?
+	service_file_target = addon_dir + os.path.sep + service_file_name
+	if not os.path.isfile(service_file_target):
+		os.symlink(service_file_source, service_file_target)
 
-# Actually start Steam Link
-start_steamlink
-}
+	# Enable systemd service
+	subprocess.run(["systemctl", "enable", "steamlink.service"])
 
-install_on_osmc () {
-kodi-send --action="Notification(Installing Steamlink, Please wait while installing Steamlink and packages,1500)"
-sudo mv /home/osmc/.local/share/SteamLink/udev/rules.d/55-steamlink.rules /lib/udev/rules.d/55-steamlink.rules
-sudo apt-get install curl gnupg libc6 xz-utils -y
-wget http://media.steampowered.com/steamlink/rpi/steamlink.deb -O /tmp/steamlink.deb
-sudo dpkg -i /tmp/steamlink.deb
-rm -f /tmp/steamlink.deb
-sudo -u osmc steamlink
-start_steamlink
-}
+def LibreELECStart():
+	print("Starting Steam Link.")
+	subprocess.run(["systemctl", "start", "steamlink.service"])
 
-install_on_os () {
-case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
- *LibreELEC*) install_on_libre ;;
-      *OSMC*) install_on_osmc ;;
-esac
-}
+def LibreELEC():
+	# Detect installation
+	if not os.path.isfile(version_file):
+		print("Installation not found. Installing.")
+		LibreELECInstall()
+	else:
+		print("Installation found. Checking version.")
+		# Compare versions and install if online version differs from local one
+		link = "http://media.steampowered.com/steamlink/rpi/public_build.txt"
+		download_link = requests.get(link).text.split("\n")[0]
+		steamlink_version = download_link.split("http://media.steampowered.com/steamlink/rpi/steamlink-rpi3-",1)[1].split(".tar.gz")[0]
 
-# TODO: Why "su -c" for LibreELEC? User is already root
-start_steamlink () {
-chmod 755 /tmp/steamlink-watchdog.sh
-case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
- *LibreELEC*) su -c "nohup /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &" ;;
-      *OSMC*) sudo su -c "nohup sudo openvt -c 7 -s -f -l /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &" ;;
-esac
-}
+		with open(version_file) as vf:
+			for line in vf:
+				if line.split("\n")[0] != steamlink_version:
+					print("Newer version found. Installing.")
+					LibreELECInstall()
+				else:
+					print("Current version already installed. Skipping installation.")
+				break # Version file should always be a single line
 
-detect_steamlink () {
-case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
- *LibreELEC*) if [ -f "/storage/steamlink/steamlink.sh" ]; then start_steamlink ; else install_on_os; fi ;;
-      *OSMC*) if [ "$(which steamlink)" -eq "1" ]; then start_steamlink ; else install_on_os; fi ;;
-esac
+	LibreELECStart()
 
-}
+# Installation on OSMC
+def OSMCInstall():
+	print("TODO")
 
-detect_steamlink
-""")
-        outfile.close()
+def OSMCStart():
+	print("TODO")
 
-    with open('/tmp/steamlink-watchdog.sh', 'w') as outfile:
-        outfile.write("""#!/bin/bash
-# watchdog part
-watchdog_osmc () {
-sudo systemctl stop mediacenter
-if [ "$HYPERIONFIX" = 1 ]; then
-   if [ "$(pgrep hyperion)" ]; then sudo systemctl stop hyperion; fi
-   if [ ! "$(pgrep hyperion)" ]; then sudo systemctl start hyperion; fi
-fi
-sudo -u osmc steamlink
-sudo openvt -c 7 -s -f clear
-sudo systemctl start mediacenter
-}
+def OSMC():
+	print("TODO")
 
-# FIXME: # /storage/steamlink/steamlink.sh
-#          * failed to add service - already in use?
-#
-# Official response to that: https://steamcommunity.com/app/353380/discussions/6/1642041886371250832/?ctp=4#c3428846977637944531
-# This is because on Buster the graphics hardware is in use for system display
-# and Qt can't create an EGL context on the console. You'll need to run a
-# minimal X11 setup in order to use Steam Link on the Raspberry Pi 4.
-#
-# FIXME: "systemctl kodi stop" kills everything run from kodi
-#        steamlink.sh does not get started
-#        How to circumvent this?
-#        Write systemd service that stops kodi and starts steamlink.sh?
-#
-watchdog_libre () {
-systemctl stop kodi
-if [ "$HYPERIONFIX" = 1 ]; then
-   if [ "$(pgrep hyperion)" ]; then systemctl stop hyperion; fi
-   if [ ! "$(pgrep hyperion)" ]; then systemctl start hyperion; fi
-fi
-/storage/steamlink/steamlink.sh &> /storage/steamlink/steamlink.log >/dev/null 2>&1 &
-systemctl start kodi
-}
+# Main
+def Main():
+	# Check architecture
+	if not platform.machine().startswith("arm"):
+		print("Architecture not supported. Exiting.")
+		##exit(1)
 
-os_detection () {
-case $(cat /etc/os-release | grep -oE "^NAME=\\".*") in
- *LibreELEC*) watchdog_libre ;;
-      *OSMC*) watchdog_osmc ;;
-esac
-}
+	# "switch"
+	name = GetOS()
+	if   name == "LibreELEC":
+		LibreELEC()
+	elif name == "OSMC":
+		OSMC()
+	elif name == "unknown":
+		print("Was not able to detect operating system. Exiting.")
+		exit(1)
+	else:
+		##print("Operating system not supported. Exiting.")
+		##exit(1)
+		LibreELEC()
 
-os_detection
-""")
-        outfile.close()
 
-main()
+Main()

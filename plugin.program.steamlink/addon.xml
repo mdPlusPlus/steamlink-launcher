@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.steamlink" name="Steamlink Launcher" version="0.0.7" provider-name="Toast">
+<addon id="plugin.program.steamlink"
+       name="steamlink"
+       version="1.0"
+       provider-name="mdPlusPlus">
   <requires>
+    <import addon="os.libreelec.tv" version="9.80"/>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
-  <extension point="xbmc.python.pluginsource" library="addon.py">
+  <extension point="xbmc.python.script" library="addon.py">
     <provides>executable</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Steamlink for Kodi</summary>
-    <description lang="en_GB">Steamlink for Kodi</description>
-    <disclaimer lang="en_GB"></disclaimer>
-    <language>en</language> <!-- the language of the videos the plugin provides, may be left blank -->
-    <platform>linux</platform>
-    <license>GPL-2.0</license>
-    <forum></forum> <!-- may be left blank  -->
-    <website>https://github.com/swetoast/steamlink-launcher/</website> <!-- the url of the website that contains the videos (or the official website of your plugin).  -->
-    <email></email> <!-- may be left blank  -->
-    <source>https://github.com/swetoast/steamlink-launcher</source>
+    <summary>Steam Link app for Raspberry Pi</summary>
+    <description>
+Installs the Steam Link app for Raspberry Pi 3 or newer from Valve for use in streaming from Steam clients. Addon is not associated with Valve. Steam and the Steam logo are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries.
+    </description>
+    <disclaimer>
+    </disclaimer>
+    <platform>all</platform>
+    <website></website> <!-- to be filled out -->
+    <source></source> <!-- to be filled out -->
     <news>
-      Added support for Libreelec
-      Automatic installation for Platforms
-      Updated with Kodi Matrix compabiltity (Version 19)
+100
+- Initial release
     </news>
     <assets>
-        <icon>resources/icon.png</icon>
-        <fanart>resources/fanart.jpg</fanart>
-        <banner>resources/banner.png</banner>
-        <clearlogo>resources/clearlogo.png</clearlogo>
-        <screenshot>resources/screenshot.png</screenshot>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+      <banner>resources/banner.png</banner>
+      <clearlogo>resources/clearlogo.png</clearlogo>
+      <screenshot>resources/screenshot.png</screenshot>
     </assets>
   </extension>
 </addon>
