@@ -8,6 +8,7 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import xbmc
 import xbmcaddon
 from pathlib import Path
 from urllib.request import urlretrieve
