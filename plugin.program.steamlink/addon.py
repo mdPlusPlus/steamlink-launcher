@@ -2,18 +2,17 @@
 
 import os
 import platform
-import requests ## Has to be installed as a Kodi addon (LibreELEC)
+import requests # Has to be installed as a Kodi addon (LibreELEC)
 import shutil
 import stat
 import subprocess
 import tarfile
 import tempfile
-import xbmcaddon ##
+import xbmcaddon
 from pathlib import Path
 from urllib.request import urlretrieve
 
-addon_dir = xbmcaddon.Addon().getAddonInfo("path") ##
-##addon_dir = "/home/user/Downloads/ADDON"
+addon_dir = xbmcaddon.Addon().getAddonInfo("path")
 
 # Detect operatiing system
 def GetOS():
@@ -53,7 +52,7 @@ def LibreELECInstall():
 	start_sh = os.path.join(os.path.join(addon_dir, "resources"), start_sh_name)
 	mode = os.stat(start_sh).st_mode
 	os.chmod(start_sh, mode | stat.S_IEXEC)
-	
+
 	# Get download link and download path
 	link = "http://media.steampowered.com/steamlink/rpi/public_build.txt"
 	download_link = requests.get(link).text.split("\n")[0]
@@ -72,9 +71,8 @@ def LibreELECInstall():
 	# Symlinking systemd service file
 	service_file_name = "steamlink.service"
 	service_file_source = os.path.join(os.path.join(addon_dir, "resources"), service_file_name) # ADDON/resources/steamlink.sh
-	# /usr/lib/systemd/system/ ?
-	service_file_target = "/storage/.config/system.d/" + service_file_name # TODO: Get systemd path from OS? ##
-	##service_file_target = addon_dir + os.path.sep + service_file_name
+	# TODO: /usr/lib/systemd/system/ ?
+	service_file_target = "/storage/.config/system.d/" + service_file_name # TODO: Get systemd path from OS?
 	if not os.path.isfile(service_file_target):
 		os.symlink(service_file_source, service_file_target)
 
@@ -127,7 +125,7 @@ def Main():
 	# Check architecture
 	if not platform.machine().startswith("arm"):
 		print("Architecture not supported. Exiting.")
-		exit(1) ##
+		exit(1)
 
 	# TODO: Raspbian/RaspberryPiOS support -> NAME="Raspbian GNU/Linux"
 	# "switch"
@@ -141,8 +139,7 @@ def Main():
 		exit(1)
 	else:
 		print("Operating system not supported. Exiting.")
-		exit(1) ##
-		##LibreELEC()
+		exit(1)
 
 
 Main()
