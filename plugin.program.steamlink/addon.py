@@ -8,11 +8,11 @@ import stat
 import subprocess
 import tarfile
 import tempfile
-##import xmbcaddon
+import xbmcaddon ##
 from urllib.request import urlretrieve
 
-##addon_dir = xbmcaddon.Addon().getAddonInfo("path")
-addon_dir = "/home/user/Downloads/ADDON"
+addon_dir = xbmcaddon.Addon().getAddonInfo("path") ##
+##addon_dir = "/home/user/Downloads/ADDON"
 version_file = os.path.join(os.path.join(addon_dir, "steamlink"), "version.txt")
 
 # Detect operatiing system
@@ -73,8 +73,8 @@ def LibreELECInstall():
 	service_file_name = "steamlink.service"
 	service_file_source = os.path.join(os.path.join(addon_dir, "resources"), service_file_name) # ADDON/resources/steamlink.sh
 	# /usr/lib/systemd/system/ ?
-	##service_file_target = "/storage/.config/system.d/" + service_file_name # TODO: Get systemd path from OS?
-	service_file_target = addon_dir + os.path.sep + service_file_name
+	service_file_target = "/storage/.config/system.d/" + service_file_name # TODO: Get systemd path from OS? ##
+	##service_file_target = addon_dir + os.path.sep + service_file_name
 	if not os.path.isfile(service_file_target):
 		os.symlink(service_file_source, service_file_target)
 
@@ -123,8 +123,9 @@ def Main():
 	# Check architecture
 	if not platform.machine().startswith("arm"):
 		print("Architecture not supported. Exiting.")
-		##exit(1)
+		exit(1) ##
 
+	# TODO: Raspbian/RaspberryPiOS support -> NAME="Raspbian GNU/Linux"
 	# "switch"
 	name = GetOS()
 	if   name == "LibreELEC":
@@ -135,9 +136,9 @@ def Main():
 		print("Was not able to detect operating system. Exiting.")
 		exit(1)
 	else:
-		##print("Operating system not supported. Exiting.")
-		##exit(1)
-		LibreELEC()
+		print("Operating system not supported. Exiting.")
+		exit(1) ##
+		##LibreELEC()
 
 
 Main()

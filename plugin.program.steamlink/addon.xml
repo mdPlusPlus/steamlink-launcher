@@ -4,8 +4,8 @@
        version="1.0"
        provider-name="mdPlusPlus">
   <requires>
-    <import addon="os.libreelec.tv" version="9.80"/>
     <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.22.0"/>
   </requires>
   <extension point="xbmc.python.script" library="addon.py">
     <provides>executable</provides>
