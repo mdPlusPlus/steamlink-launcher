@@ -1,7 +1,7 @@
 [Unit]
 Description="Watchdog to start Steamlink"
 After=graphical.target
-#ConditionPathExists=/tmp/steamlink.watchdog
+ConditionPathExists=/tmp/steamlink.ready
 
 [Service]
 Type=oneshot

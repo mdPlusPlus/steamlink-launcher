@@ -2,18 +2,18 @@
 
 import os
 import platform
-import requests
+import requests ## Has to be installed as a Kodi addon (LibreELEC)
 import shutil
 import stat
 import subprocess
 import tarfile
 import tempfile
 import xbmcaddon ##
+from pathlib import Path
 from urllib.request import urlretrieve
 
 addon_dir = xbmcaddon.Addon().getAddonInfo("path") ##
 ##addon_dir = "/home/user/Downloads/ADDON"
-version_file = os.path.join(os.path.join(addon_dir, "steamlink"), "version.txt")
 
 # Detect operatiing system
 def GetOS():
@@ -82,10 +82,14 @@ def LibreELECInstall():
 	subprocess.run(["systemctl", "enable", "steamlink.service"])
 
 def LibreELECStart():
+	ready_file = os.path.sep + "tmp" + os.path.sep + "steamlink.ready"
+	Path(ready_file).touch()
 	print("Starting Steam Link.")
 	subprocess.run(["systemctl", "start", "steamlink.service"])
 
 def LibreELEC():
+	version_file = os.path.join(os.path.join(addon_dir, "steamlink"), "version.txt")
+
 	# Detect installation
 	if not os.path.isfile(version_file):
 		print("Installation not found. Installing.")

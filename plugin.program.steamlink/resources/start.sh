@@ -20,6 +20,6 @@ sleep 3
 
 # Cleanup
 umount /lib/udev/rules.d/
-#rm /tmp/steamlink.watchdog
+rm /tmp/steamlink.ready
 systemctl start pulseaudio
 systemctl start kodi
