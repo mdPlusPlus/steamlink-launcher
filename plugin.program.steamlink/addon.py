@@ -80,7 +80,7 @@ def LibreELECInstall():
 	subprocess.run(["systemctl", "enable", "steamlink.service"])
 
 def LibreELECStart():
-	ready_file = os.path.sep + "tmp" + os.path.sep + "steamlink.ready"
+	ready_file = os.path.sep + "tmp" + os.path.sep + "steamlink.ready" # TODO: OS-independent?
 	Path(ready_file).touch()
 	print("Starting Steam Link.")
 	subprocess.run(["systemctl", "start", "steamlink.service"])
@@ -112,13 +112,31 @@ def LibreELEC():
 
 # Installation on OSMC
 def OSMCInstall():
-	print("TODO")
+	# Install dependencies
+	subprocess.run(["sudo apt-get install -y curl gnupg libc6 xz-utils"])
+
+	# Install Steam Link
+	deb_source = "http://media.steampowered.com/steamlink/rpi/steamlink.deb"
+	deb_target = "/tmp/steamlink.deb"
+	urlretrieve(deb_source, deb_target)
+	subprocess.run(["sudo", "dpkg", "-i", deb_target])
+	os.remove(deb_target)
+	
+	# Install udev rules
+	subprocess.run(["sudo", "cp", "/home/osmc/.local/share/SteamLink/udev/rules.d/*-steamlink.rules", "/lib/udev/rules.d/"])
 
 def OSMCStart():
-	print("TODO")
+	print("TODO") # TODO
+
+	# sudo su -c "nohup sudo openvt -c 7 -s -f -l /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &"
 
 def OSMC():
-	print("TODO")
+	# TODO: Version detection
+	# Detect installation
+	if subprocess.run(["which", "steamlink"]).returncode == "0":
+		OSMCStart()
+	else:
+		OSMCInstall()
 
 # Main
 def Main():
@@ -127,13 +145,14 @@ def Main():
 		print("Architecture not supported. Exiting.")
 		exit(1)
 
-	# TODO: Raspbian/RaspberryPiOS support -> NAME="Raspbian GNU/Linux"
 	# "switch"
 	name = GetOS()
 	if   name == "LibreELEC":
 		LibreELEC()
 	elif name == "OSMC":
 		OSMC()
+	elif name == "Raspbian GNU/Linux":
+		print("TODO") # TODO
 	elif name == "unknown":
 		print("Was not able to detect operating system. Exiting.")
 		exit(1)
