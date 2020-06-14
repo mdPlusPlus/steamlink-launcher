@@ -12,7 +12,16 @@ import xbmcaddon
 from pathlib import Path
 from urllib.request import urlretrieve
 
+__addon__ = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__icon__ = __addon__.getAddonInfo('icon')
+
 addon_dir = xbmcaddon.Addon().getAddonInfo("path")
+
+# Show notification in the upper right corner
+def ShowNotification(line):
+	print(line)
+	xbmc.executebuiltin('Notification(%s, %s, %d, %s)'%(__addonname__, line, 5000, __icon__))
 
 # Detect operatiing system
 def GetOS():
@@ -34,7 +43,7 @@ def LibreELECInstall():
 	# Copy required libraries
 	lib_source = os.path.join(os.path.join(addon_dir, "resources"), "lib") # ADDON/resources/lib
 	lib_target = os.path.join(os.path.join(addon_dir, "steamlink"), "lib") # ADDON/steamlink/lib
-	print("Symlinking required libraries from " + lib_source + " to " + lib_target + ".")
+	ShowNotification("Symlinking required libraries from " + lib_source + " to " + lib_target + ".")
 	os.makedirs(lib_target)
 	# libjpeg.so.62.2.0 > libjpeg.so.62
 	os.symlink(os.path.join(lib_source, "libjpeg.so.62.2.0"),   os.path.join(lib_target, "libjpeg.so.62"))
@@ -61,11 +70,11 @@ def LibreELECInstall():
 	tarball_path = os.path.join(tempfile.mkdtemp(), tarball_name)
 
 	# Download .tar.gz to temporary directory
-	print("Downloading Steam Link.")
+	ShowNotification("Downloading Steam Link.")
 	urlretrieve(download_link, tarball_path)
 
 	# Extract .tar.gz
-	print("Extracting Steam Link archive.")
+	ShowNotification("Extracting Steam Link archive.")
 	tarfile.open(tarball_path).extractall(path=addon_dir)
 
 	# Symlinking systemd service file
@@ -82,7 +91,7 @@ def LibreELECInstall():
 def LibreELECStart():
 	ready_file = os.path.sep + "tmp" + os.path.sep + "steamlink.ready" # TODO: OS-independent?
 	Path(ready_file).touch()
-	print("Starting Steam Link.")
+	ShowNotification("Starting Steam Link.")
 	subprocess.run(["systemctl", "start", "steamlink.service"])
 
 def LibreELEC():
@@ -90,10 +99,10 @@ def LibreELEC():
 
 	# Detect installation
 	if not os.path.isfile(version_file):
-		print("Installation not found. Installing.")
+		ShowNotification("Installation not found. Installing.")
 		LibreELECInstall()
 	else:
-		print("Installation found. Checking version.")
+		ShowNotification("Installation found. Checking version.")
 		# Compare versions and install if online version differs from local one
 		link = "http://media.steampowered.com/steamlink/rpi/public_build.txt"
 		download_link = requests.get(link).text.split("\n")[0]
@@ -102,10 +111,10 @@ def LibreELEC():
 		with open(version_file) as vf:
 			for line in vf:
 				if line.split("\n")[0] != steamlink_version:
-					print("Newer version found. Installing.")
+					ShowNotification("Newer version found. Installing.")
 					LibreELECInstall()
 				else:
-					print("Current version already installed. Skipping installation.")
+					ShowNotification("Current version already installed. Skipping installation.")
 				break # Version file should always be a single line
 
 	LibreELECStart()
@@ -159,7 +168,7 @@ def RPiOS():
 def Main():
 	# Check architecture
 	if not platform.machine().startswith("arm"):
-		print("Architecture not supported. Exiting.")
+		ShowNotification("Architecture not supported. Exiting.")
 		exit(1)
 
 	# "switch"
@@ -171,10 +180,10 @@ def Main():
 	elif name == "Raspbian GNU/Linux":
 		RPiOS()
 	elif name == "unknown":
-		print("Was not able to detect operating system. Exiting.")
+		ShowNotification("Was not able to detect operating system. Exiting.")
 		exit(1)
 	else:
-		print("Operating system not supported. Exiting.")
+		ShowNotification("Operating system not supported. Exiting.")
 		exit(1)
 
 
