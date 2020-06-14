@@ -138,6 +138,23 @@ def OSMC():
 	else:
 		OSMCInstall()
 
+# Installation on Raspbian / Raspberry Pi OS
+def RPiOSInstall():
+	# TODO
+	subprocess.run(["sudo", "apt", "update"])
+	subprocess.run(["sudo", "apt", "install", "-y", "steamlink"])
+
+def RPiOSStart():
+	print("TODO") # TODO
+
+def RPiOS():
+	# TODO: Version detection
+	# Detect installation
+	if subprocess.run(["which", "steamlink"]).returncode == "0":
+		RPiOSStart()
+	else:
+		RPiOSInstall()
+
 # Main
 def Main():
 	# Check architecture
@@ -152,7 +169,7 @@ def Main():
 	elif name == "OSMC":
 		OSMC()
 	elif name == "Raspbian GNU/Linux":
-		print("TODO") # TODO
+		RPiOS()
 	elif name == "unknown":
 		print("Was not able to detect operating system. Exiting.")
 		exit(1)
