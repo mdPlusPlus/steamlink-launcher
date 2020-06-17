@@ -146,9 +146,11 @@ def OSMCInstall():
 	# sudo apt purge -y steamlink cec-utils libcec4 libp8-platform2 libusb-1.0-0 libx11-6 libx11-data libx11-xcb1 libxau6 libxcb-xkb1 libxcb1 libxdmcp6 libxext6 libxkbcommon-x11-0 libxrandr2 libxrender1
 
 def OSMCStart():
+	# TODO: Do we need to stop Kodi/pulseaudio and start Steam Link via systemd like on LibreELEC?
 	ShowNotification("Starting Steam Link")
 	subprocess.run("steamlink")
 
+	# TODO: Remove line from code
 	# sudo su -c "nohup sudo openvt -c 7 -s -f -l /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &"
 
 def OSMC():
