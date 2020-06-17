@@ -41,7 +41,7 @@ def LibreELECInstall():
 	# Remove installaton directory if already present
 	shutil.rmtree(os.path.join(addon_dir, "steamlink"), ignore_errors=True)
 
-	# Copy required libraries
+	# Symlink required libraries
 	lib_source = os.path.join(os.path.join(addon_dir, "resources"), "lib") # ADDON/resources/lib
 	lib_target = os.path.join(os.path.join(addon_dir, "steamlink"), "lib") # ADDON/steamlink/lib
 	ShowNotification("Symlinking required libraries from " + lib_source + " to " + lib_target + ".")
@@ -123,20 +123,31 @@ def LibreELEC():
 # Installation on OSMC
 def OSMCInstall():
 	# Install dependencies
-	subprocess.run(["sudo apt-get install -y curl gnupg libc6 xz-utils"])
+	ShowNotification("Installing dependencies")
+	subprocess.run(["sudo", "apt", "install" "-y", "cec-utils", "libcec4", "libp8-platform2", "libusb-1.0-0", "libx11-6", "libx11-data", "libx11-xcb1", "libxau6", "libxcb-xkb1", "libxcb1", "libxdmcp6", "libxext6", "libxkbcommon-x11-0", "libxrandr2", "libxrender1"])
 
 	# Install Steam Link
+	ShowNotification("Installing Steam Link")
 	deb_source = "http://media.steampowered.com/steamlink/rpi/steamlink.deb"
 	deb_target = "/tmp/steamlink.deb"
 	urlretrieve(deb_source, deb_target)
-	subprocess.run(["sudo", "dpkg", "-i", deb_target])
+	subprocess.run(["sudo", "apt", "install", deb_target]) # sudo apt install /tmp/steamlink.deb
 	os.remove(deb_target)
-	
-	# Install udev rules
-	subprocess.run(["sudo", "cp", "/home/osmc/.local/share/SteamLink/udev/rules.d/*-steamlink.rules", "/lib/udev/rules.d/"])
+
+	ShowNotification("Run steamlink command to set everything up")
+	ShowNotification("!! Please wait until Steam Link has started !!")
+	# Run steamlink once to set it up
+	# Dependencies do NOT get installed, that's why we installed them manually before
+	# Copy '/home/osmc/.local/share/SteamLink/udev/modules-load.d/uinput.conf' -> '/etc/modules-load.d/uinput.conf'
+	# Copy '/home/osmc/.local/share/SteamLink/udev/rules.d/56-steamlink.rules' -> '/lib/udev/rules.d/56-steamlink.rules'
+	subprocess.run(["steamlink"], stdin=subprocess.DEVNULL)
+
+	# TODO: Remove line from code
+	# sudo apt purge -y steamlink cec-utils libcec4 libp8-platform2 libusb-1.0-0 libx11-6 libx11-data libx11-xcb1 libxau6 libxcb-xkb1 libxcb1 libxdmcp6 libxext6 libxkbcommon-x11-0 libxrandr2 libxrender1
 
 def OSMCStart():
-	print("TODO") # TODO
+	ShowNotification("Starting Steam Link")
+	subprocess.run("steamlink")
 
 	# sudo su -c "nohup sudo openvt -c 7 -s -f -l /tmp/steamlink-watchdog.sh >/dev/null 2>&1 &"
 
@@ -160,7 +171,7 @@ def RPiOSStart():
 def RPiOS():
 	# TODO: Version detection
 	# Detect installation
-	if subprocess.run(["which", "steamlink"]).returncode == "0":
+	if subprocess.run(["which", "steamlink"]).returncode == 0:
 		RPiOSStart()
 	else:
 		RPiOSInstall()
